@@ -2,4 +2,5 @@ from .base import BaseAppSettings
 
 
 class TestAppSettings(BaseAppSettings):
-    pass
+    MONGO_URL: str
+    DATABASE_NAME: str = 'test_database'

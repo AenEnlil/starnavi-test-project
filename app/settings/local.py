@@ -2,4 +2,6 @@ from .base import BaseAppSettings
 
 
 class LocalAppSettings(BaseAppSettings):
-    pass
+    MONGO_URL: str
+    DATABASE_NAME: str
+

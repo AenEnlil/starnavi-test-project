@@ -12,4 +12,4 @@ class AppEnvTypes(Enum):
 class BaseAppSettings(BaseSettings):
     environment: AppEnvTypes = AppEnvTypes.local
 
-    model_config = SettingsConfigDict(env_file='.env')
+    model_config = SettingsConfigDict(env_file='.env', extra='ignore')
