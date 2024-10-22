@@ -13,6 +13,7 @@ USER_DOC = 'users'
 POST_DOC = 'posts'
 COMMENT_DOC = 'comments'
 
+db.users.create_index(['email'], unique=True)
 
 def get_user_collection() -> Collection:
     """
