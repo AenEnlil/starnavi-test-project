@@ -2,7 +2,6 @@ import json
 
 import pytest
 
-from fastapi.encoders import jsonable_encoder
 from httpx import AsyncClient
 from starlette import status
 

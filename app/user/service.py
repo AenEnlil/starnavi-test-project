@@ -1,20 +1,17 @@
 from bson import ObjectId
-from passlib.context import CryptContext
+from fastapi.encoders import jsonable_encoder
 
+from app.auth.service import pwd_context
 from app.database import get_user_collection
-
-pwd_context = CryptContext(schemes=['bcrypt'])
 
 
 def find_user_by_id(user_id: ObjectId):
     return get_user_collection().find_one({'_id': user_id})
 
 
-def create_user(user: dict):
-    user['password'] = pwd_context.hash(user['password'])
-    result = get_user_collection().insert_one(user)
+def create_user(user_data: dict):
+    user_dict = jsonable_encoder(user_data)
+    user_dict['password'] = pwd_context.hash(user_dict['password'])
+    result = get_user_collection().insert_one(user_dict)
     return result.inserted_id
 
-
-def verify_password(plain_password: str, hashed_password: str):
-    return pwd_context.verify(plain_password, hashed_password)
