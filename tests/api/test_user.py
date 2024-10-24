@@ -1,6 +1,5 @@
-import json
-
 import pytest
+import json
 
 from httpx import AsyncClient
 from starlette import status
