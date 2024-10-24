@@ -1,7 +1,7 @@
 import pytest
 
 from app.database import get_post_collection
-from app.post.service import find_post_by_id, create_post_in_db
+from app.post.service import find_post_by_id, create_post_in_db, update_post
 from tests.conftest import POST_DATA
 
 
@@ -25,3 +25,18 @@ async def test_find_post_by_id(app, post):
     found_post = find_post_by_id(post)
     assert found_post
     assert found_post.get('_id') == post
+
+
+async def test_update_post(app, post):
+    old_post = find_post_by_id(post)
+    new_data = {'title': 'changed'}
+
+    assert new_data.get('title') != old_post.get('title')
+
+    updated_post_id = update_post(post, new_data)
+    assert updated_post_id
+
+    updated_post = find_post_by_id(updated_post_id)
+    assert updated_post.get('title') == new_data.get('title')
+    assert updated_post.get('_id') == old_post.get('_id')
+

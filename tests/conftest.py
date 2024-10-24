@@ -19,6 +19,11 @@ USER_DATA = {
     'password': 'pass123'
 }
 
+USER2_DATA = {
+    'email': 'test_user2@email.com',
+    'password': '654F3'
+}
+
 POST_DATA = {
     'title': 'Test Post',
     'text': 'some text'
@@ -46,8 +51,19 @@ async def user():
 
 
 @pytest.fixture
+async def user2():
+    created_user_id = create_user(USER2_DATA)
+    return created_user_id
+
+
+@pytest.fixture
 async def token():
     return AccessToken().create_access_token(USER_DATA.get('email'))
+
+
+@pytest.fixture
+async def token2():
+    return AccessToken().create_access_token(USER2_DATA.get('email'))
 
 
 @pytest.fixture

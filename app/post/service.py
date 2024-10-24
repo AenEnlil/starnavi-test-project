@@ -12,3 +12,8 @@ def create_post_in_db(post_data: dict, user_id: PyObjectId):
 def find_post_by_id(post_id: PyObjectId):
     return get_post_collection().find_one({'_id': post_id})
 
+
+def update_post(post_id: PyObjectId, data: dict):
+    get_post_collection().update_one({'_id': post_id}, {'$set': data})
+    return post_id
+
