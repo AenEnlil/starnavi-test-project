@@ -20,7 +20,8 @@ USER_DATA = {
 }
 
 POST_DATA = {
-    'text': 'test post'
+    'title': 'Test Post',
+    'text': 'some text'
 }
 
 

@@ -5,10 +5,12 @@ from app.custom_fields import PyObjectId
 
 
 class PostBaseSchema(BaseModel):
+    title: str
     text: str
 
 
 class PostCreateInSchema(BaseModel):
+    title: str
     text: str
 
 
