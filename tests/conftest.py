@@ -9,6 +9,8 @@ from app.auth.jwt import AccessToken
 from app.main import get_application
 from app.config import get_settings
 from app.database import mongo_client
+from app.comments.schemas import CommentReadSchema
+from app.comments.service import create_comment_in_db, find_comment_by_id
 from app.post.service import create_post_in_db
 from app.user.service import create_user
 
@@ -27,6 +29,10 @@ USER2_DATA = {
 POST_DATA = {
     'title': 'Test Post',
     'text': 'some text'
+}
+
+COMMENT_DATA = {
+    'text': 'test comment'
 }
 
 
@@ -70,3 +76,10 @@ async def token2():
 async def post(user):
     created_post_id = create_post_in_db(POST_DATA.copy(), user_id=user)
     return created_post_id
+
+
+@pytest.fixture
+async def comment(user, post) -> CommentReadSchema:
+    comment_data = COMMENT_DATA.copy()
+    created_comment_id = create_comment_in_db(post, user, comment_data)
+    return CommentReadSchema(**find_comment_by_id(created_comment_id))
