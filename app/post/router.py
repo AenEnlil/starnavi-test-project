@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import Annotated
 from starlette import status
+from starlette.responses import JSONResponse
 
 from app.auth.dependencies import get_current_user
 from app.auth.schemas import UserReadSchema
 from app.custom_fields import PyObjectId
 from app.post import messages
-from app.post.service import create_post_in_db, find_post_by_id, update_post
+from app.post.service import create_post_in_db, find_post_by_id, update_post, delete_post_in_db
 from app.post.schema import PostCreateInSchema, PostReadSchema, PostUpdateSchema
 
 router = APIRouter(
@@ -49,6 +50,13 @@ async def edit_post(post_id: PyObjectId, post_data: PostUpdateSchema, current_us
     return updated_post
 
 
-@router.delete('/{post_id}', status_code=status.HTTP_204_NO_CONTENT)
+@router.delete('/{post_id}')
 async def delete_post(post_id: PyObjectId, current_user: Annotated[UserReadSchema, Depends(get_current_user)]):
-    pass
+    post = find_post_by_id(post_id)
+    if not post:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=messages.POST_NOT_FOUND)
+    if post.get('user_id') != current_user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=messages.POST_DELETE_NOT_ALLOWED)
+
+    result = delete_post_in_db(post_id)
+    return JSONResponse(status_code=status.HTTP_200_OK, content={'deleted': result})

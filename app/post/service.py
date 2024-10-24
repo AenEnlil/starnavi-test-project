@@ -17,3 +17,7 @@ def update_post(post_id: PyObjectId, data: dict):
     get_post_collection().update_one({'_id': post_id}, {'$set': data})
     return post_id
 
+
+def delete_post_in_db(post_id: PyObjectId):
+    result = get_post_collection().delete_one({'_id': post_id})
+    return bool(result.deleted_count)

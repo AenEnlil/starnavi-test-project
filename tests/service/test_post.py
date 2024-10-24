@@ -1,7 +1,7 @@
 import pytest
 
 from app.database import get_post_collection
-from app.post.service import find_post_by_id, create_post_in_db, update_post
+from app.post.service import find_post_by_id, create_post_in_db, update_post, delete_post_in_db
 from tests.conftest import POST_DATA
 
 
@@ -39,4 +39,15 @@ async def test_update_post(app, post):
     updated_post = find_post_by_id(updated_post_id)
     assert updated_post.get('title') == new_data.get('title')
     assert updated_post.get('_id') == old_post.get('_id')
+
+
+async def test_delete_post(app, post):
+    existing_posts_count = get_post_collection().count_documents({})
+    assert existing_posts_count
+
+    result = delete_post_in_db(post)
+    assert result
+
+    existing_posts_count = get_post_collection().count_documents({})
+    assert not existing_posts_count
 
