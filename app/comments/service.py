@@ -6,7 +6,9 @@ from app.comments.schemas import CommentCreateSchema
 
 
 def create_comment_in_db(post_id: PyObjectId, user_id: PyObjectId, data: dict):
+    current_time = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
     data = CommentCreateSchema(**data, post_id=post_id, author_id=user_id).model_dump()
+    data.update({'updated_at': current_time, 'created_at': current_time})
     result = get_comment_collection().insert_one(data)
     return result.inserted_id
 

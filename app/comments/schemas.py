@@ -21,8 +21,6 @@ class CommentUpdateSchema(CommentBaseSchema):
 class CommentCreateSchema(CommentCreateInSchema):
     post_id: PyObjectId
     author_id: PyObjectId
-    updated_at: datetime = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
-    created_at: datetime = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 class CommentReadSchema(CommentBaseSchema):
