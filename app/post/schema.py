@@ -18,7 +18,6 @@ class PostCreateInSchema(BaseModel):
 
 class PostCreateSchema(PostCreateInSchema):
     user_id: PyObjectId
-    created_at: datetime = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 class PostUpdateSchema(PostBaseSchema):
@@ -29,6 +28,7 @@ class PostUpdateSchema(PostBaseSchema):
 class PostReadSchema(PostBaseSchema):
     id: PyObjectId = Field(default_factory=PyObjectId, alias='_id')
     user_id: PyObjectId
+    updated_at: datetime
     created_at: datetime
 
 
