@@ -5,7 +5,7 @@ from httpx import AsyncClient
 from starlette import status
 
 from app.custom_fields import PyObjectId
-from app.messages import POST_NOT_FOUND, POST_EDIT_NOT_ALLOWED, POST_DELETE_NOT_ALLOWED
+from app.messages import POST_NOT_FOUND, POST_EDIT_NOT_ALLOWED, POST_DELETE_NOT_ALLOWED, POST_ALREADY_EXISTS
 from tests.conftest import POST_DATA
 
 
@@ -34,6 +34,31 @@ async def test_not_authenticated_user_cant_delete_post(client: AsyncClient):
     response = await client.delete(url=f'api/v1/posts/{post_id}')
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+async def test_user_cant_create_post_with_same_title_if_he_already_created_one(client: AsyncClient, user, token):
+    response = await client.post(url='api/v1/posts/',
+                                 data=json.dumps(POST_DATA.copy()),
+                                 headers={'Authorization': f'Bearer {token}'})
+
+    assert response.status_code == status.HTTP_201_CREATED
+
+    response_data = response.json()
+
+    assert response_data
+    assert response_data.get('title') == POST_DATA.get('title')
+    assert response_data.get('text') == POST_DATA.get('text')
+    assert response_data.get('user_id') == str(user)
+
+    response = await client.post(url='api/v1/posts/',
+                                 data=json.dumps(POST_DATA.copy()),
+                                 headers={'Authorization': f'Bearer {token}'})
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    response = response.json()
+    assert response
+    assert response.get('detail') == POST_ALREADY_EXISTS
 
 
 async def test_user_can_create_post(client: AsyncClient, user, token):

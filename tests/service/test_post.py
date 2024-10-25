@@ -1,7 +1,8 @@
 import pytest
 
 from app.database import get_post_collection
-from app.post.service import find_post_by_id, create_post_in_db, update_post, delete_post_in_db
+from app.post.service import find_post_by_id, create_post_in_db, update_post, delete_post_in_db, \
+    check_post_duplication_from_user
 from tests.conftest import POST_DATA
 
 
@@ -50,4 +51,12 @@ async def test_delete_post(app, post):
 
     existing_posts_count = get_post_collection().count_documents({})
     assert not existing_posts_count
+
+
+async def test_check_post_duplication_from_user(app, post):
+    post_data = find_post_by_id(post)
+    assert post_data
+
+    assert check_post_duplication_from_user(post_data.get('title'), post_data.get('user_id'))
+    assert not check_post_duplication_from_user('new_title', post_data.get('user_id'))
 

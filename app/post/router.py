@@ -7,7 +7,8 @@ from app.auth.dependencies import get_current_user
 from app.auth.schemas import UserReadSchema
 from app.custom_fields import PyObjectId
 from app import messages
-from app.post.service import create_post_in_db, find_post_by_id, update_post, delete_post_in_db
+from app.post.service import create_post_in_db, find_post_by_id, update_post, delete_post_in_db, \
+    check_post_duplication_from_user
 from app.post.schema import PostCreateInSchema, PostReadSchema, PostUpdateSchema
 
 router = APIRouter(
@@ -18,6 +19,9 @@ router = APIRouter(
 
 @router.post(path='/', status_code=status.HTTP_201_CREATED, response_model=PostReadSchema)
 async def create_post(post: PostCreateInSchema, current_user: Annotated[UserReadSchema, Depends(get_current_user)]):
+    if check_post_duplication_from_user(post.title, current_user.id):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=messages.POST_ALREADY_EXISTS)
+
     created_post_id = create_post_in_db(post.model_dump(), user_id=current_user.id)
     created_post = find_post_by_id(created_post_id)
     return created_post

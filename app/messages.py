@@ -5,6 +5,7 @@ EMAIL_VALIDATION_ERROR = 'Invalid email value'
 CREDENTIALS_INCORRECT = 'Could not validate credentials'
 
 POST_NOT_FOUND = 'Post not found'
+POST_ALREADY_EXISTS = 'You already created post with given title'
 POST_EDIT_NOT_ALLOWED = "You can't edit someone else`s post"
 POST_DELETE_NOT_ALLOWED = "You can't delete someone else`s post"
 
