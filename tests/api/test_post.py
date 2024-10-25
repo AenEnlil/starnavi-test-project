@@ -5,7 +5,7 @@ from httpx import AsyncClient
 from starlette import status
 
 from app.custom_fields import PyObjectId
-from app.post.messages import POST_NOT_FOUND, POST_EDIT_NOT_ALLOWED, POST_DELETE_NOT_ALLOWED
+from app.messages import POST_NOT_FOUND, POST_EDIT_NOT_ALLOWED, POST_DELETE_NOT_ALLOWED
 from tests.conftest import POST_DATA
 
 

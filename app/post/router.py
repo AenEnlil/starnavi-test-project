@@ -6,7 +6,7 @@ from starlette.responses import JSONResponse
 from app.auth.dependencies import get_current_user
 from app.auth.schemas import UserReadSchema
 from app.custom_fields import PyObjectId
-from app.post import messages
+from app import messages
 from app.post.service import create_post_in_db, find_post_by_id, update_post, delete_post_in_db
 from app.post.schema import PostCreateInSchema, PostReadSchema, PostUpdateSchema
 
@@ -16,19 +16,19 @@ router = APIRouter(
 )
 
 
-@router.post('/', status_code=status.HTTP_201_CREATED, response_model=PostReadSchema)
+@router.post(path='/', status_code=status.HTTP_201_CREATED, response_model=PostReadSchema)
 async def create_post(post: PostCreateInSchema, current_user: Annotated[UserReadSchema, Depends(get_current_user)]):
     created_post_id = create_post_in_db(post.model_dump(), user_id=current_user.id)
     created_post = find_post_by_id(created_post_id)
     return created_post
 
 
-@router.get('/', status_code=status.HTTP_200_OK)
+@router.get(path='/', status_code=status.HTTP_200_OK)
 async def get_list_of_posts(current_user: Annotated[UserReadSchema, Depends(get_current_user)]):
     pass
 
 
-@router.get('/{post_id}', status_code=status.HTTP_200_OK, response_model=PostReadSchema)
+@router.get(path='/{post_id}', status_code=status.HTTP_200_OK, response_model=PostReadSchema)
 async def read_post(post_id: PyObjectId, current_user: Annotated[UserReadSchema, Depends(get_current_user)]):
     post = find_post_by_id(post_id)
     if not post:
@@ -37,7 +37,7 @@ async def read_post(post_id: PyObjectId, current_user: Annotated[UserReadSchema,
     return post
 
 
-@router.patch('/{post_id}', status_code=status.HTTP_200_OK, response_model=PostReadSchema)
+@router.patch(path='/{post_id}', status_code=status.HTTP_200_OK, response_model=PostReadSchema)
 async def edit_post(post_id: PyObjectId, post_data: PostUpdateSchema, current_user: Annotated[UserReadSchema, Depends(get_current_user)]):
     old_post = find_post_by_id(post_id)
     if not old_post:
@@ -50,7 +50,7 @@ async def edit_post(post_id: PyObjectId, post_data: PostUpdateSchema, current_us
     return updated_post
 
 
-@router.delete('/{post_id}')
+@router.delete(path='/{post_id}')
 async def delete_post(post_id: PyObjectId, current_user: Annotated[UserReadSchema, Depends(get_current_user)]):
     post = find_post_by_id(post_id)
     if not post:

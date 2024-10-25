@@ -4,7 +4,7 @@ from starlette import status
 from app.auth.jwt import AccessToken
 from app.auth.service import authenticate_user
 from app.auth.schemas import UserLogInSchema
-from app.auth import messages
+from app import messages
 
 router = APIRouter(
     prefix='/auth',

@@ -7,7 +7,7 @@ from app.auth.exceptions import UserNotFound
 from app.auth.jwt import AccessToken
 from app.auth.service import find_user_by_email
 from app.auth.schemas import UserReadSchema, TokenData
-from app.auth import messages
+from app import messages
 
 
 class JWTBearer(HTTPBearer):

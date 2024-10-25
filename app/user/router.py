@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from starlette import status
 from pymongo.errors import DuplicateKeyError
 
-from app.user import messages
+from app import messages
 from app.user.schemas import UserRegisterSchema, UserResponseSchema
 from app.user.service import create_user, find_user_by_id
 
