@@ -39,3 +39,12 @@ def get_comment_collection() -> Collection:
     """
     return db.get_collection(COMMENT_DOC)
 
+
+def get_collection_by_name(name: str) -> Collection:
+    """
+    get collection by name
+    :param name: name of collection
+    :return:  collection
+    """
+    return db.get_collection(name)
+

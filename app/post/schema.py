@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import BaseModel, Field
 
@@ -31,6 +31,12 @@ class PostReadSchema(PostBaseSchema):
     updated_at: datetime
     created_at: datetime
 
+
+class PostReadPaginationSchema(BaseModel):
+    total_items_count: int
+    page_size: int
+    page: int
+    items: List[PostReadSchema] = []
 
 
 

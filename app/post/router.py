@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from typing import Annotated
 from starlette import status
 from starlette.responses import JSONResponse
@@ -7,9 +7,11 @@ from app.auth.dependencies import get_current_user
 from app.auth.schemas import UserReadSchema
 from app.custom_fields import PyObjectId
 from app import messages
+from app.database import POST_DOC
+from app.service import paginate_collection
 from app.post.service import create_post_in_db, find_post_by_id, update_post, delete_post_in_db, \
     check_post_duplication_from_user
-from app.post.schema import PostCreateInSchema, PostReadSchema, PostUpdateSchema
+from app.post.schema import PostCreateInSchema, PostReadSchema, PostUpdateSchema, PostReadPaginationSchema
 
 router = APIRouter(
     prefix='/posts',
@@ -27,9 +29,11 @@ async def create_post(post: PostCreateInSchema, current_user: Annotated[UserRead
     return created_post
 
 
-@router.get(path='/', status_code=status.HTTP_200_OK)
-async def get_list_of_posts(current_user: Annotated[UserReadSchema, Depends(get_current_user)]):
-    pass
+@router.get(path='/', status_code=status.HTTP_200_OK, response_model=PostReadPaginationSchema)
+async def get_list_of_posts(current_user: Annotated[UserReadSchema, Depends(get_current_user)],
+                            page: int = Query(1, gt=0, lt=2147483647),
+                            page_size: int = Query(1, gt=0, lt=2147483647)):
+    return paginate_collection(collection_name=POST_DOC, page=page, items_per_page=page_size)
 
 
 @router.get(path='/{post_id}', status_code=status.HTTP_200_OK, response_model=PostReadSchema)

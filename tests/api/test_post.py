@@ -22,6 +22,12 @@ async def test_not_authenticated_user_cant_read_post(client: AsyncClient):
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
+async def test_not_authenticated_user_cant_get_post_list(client: AsyncClient):
+    response = await client.get(url=f'api/v1/posts/')
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
 async def test_not_authenticated_user_cant_edit_post(client: AsyncClient):
     post_id = PyObjectId()
     response = await client.patch(url=f'api/v1/posts/{post_id}', data={})
@@ -255,3 +261,74 @@ async def test_user_can_delete_post(client: AsyncClient, user, token):
 
     assert response
     assert response.get('deleted')
+
+
+async def test_user_can_get_post_list(client: AsyncClient, user, token, post):
+    response = await client.get(url='api/v1/posts/',
+                                headers={'Authorization': f'Bearer {token}'})
+
+    assert response.status_code == status.HTTP_200_OK
+
+    response_data = response.json()
+
+    assert response_data
+    assert response_data.get('total_items_count') == 1
+    assert response_data.get('page') == 1
+    assert response_data.get('page_size') == 1
+
+    items = response_data.get('items')
+    assert items
+    assert items[0].get('_id') == str(post)
+
+
+async def test_user_can_paginate_post_list(client: AsyncClient, user, token, post, post2):
+    response = await client.get(url='api/v1/posts/',
+                                headers={'Authorization': f'Bearer {token}'})
+
+    assert response.status_code == status.HTTP_200_OK
+
+    response_data = response.json()
+
+    assert response_data
+    assert response_data.get('total_items_count') == 2
+    assert response_data.get('page') == 1
+    assert response_data.get('page_size') == 1
+
+    items = response_data.get('items')
+    assert items
+    assert items[0].get('_id') == str(post)
+
+    response = await client.get(url='api/v1/posts/?page=2',
+                                headers={'Authorization': f'Bearer {token}'})
+
+    assert response.status_code == status.HTTP_200_OK
+
+    response_data = response.json()
+
+    assert response_data
+    assert response_data.get('total_items_count') == 2
+    assert response_data.get('page') == 2
+    assert response_data.get('page_size') == 1
+
+    items = response_data.get('items')
+    assert items
+    assert items[0].get('_id') == str(post2)
+
+
+async def test_user_can_change_page_size(client: AsyncClient, user, token, post, post2):
+    response = await client.get(url='api/v1/posts/?page_size=2',
+                                headers={'Authorization': f'Bearer {token}'})
+
+    assert response.status_code == status.HTTP_200_OK
+
+    response_data = response.json()
+
+    assert response_data
+    assert response_data.get('total_items_count') == 2
+    assert response_data.get('page') == 1
+    assert response_data.get('page_size') == 2
+
+    items = response_data.get('items')
+    assert items
+    assert len(items) == 2
+

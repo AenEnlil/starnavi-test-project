@@ -31,6 +31,11 @@ POST_DATA = {
     'text': 'some text'
 }
 
+POST_DATA2 = {
+    'title': 'Test Post2',
+    'text': 'some text'
+}
+
 COMMENT_DATA = {
     'text': 'test comment'
 }
@@ -75,6 +80,12 @@ async def token2():
 @pytest.fixture
 async def post(user):
     created_post_id = create_post_in_db(POST_DATA.copy(), user_id=user)
+    return created_post_id
+
+
+@pytest.fixture
+async def post2(user):
+    created_post_id = create_post_in_db(POST_DATA2.copy(), user_id=user)
     return created_post_id
 
 
