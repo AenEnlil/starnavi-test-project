@@ -1,8 +1,17 @@
 import pytest
 
 from app.database import get_comment_collection
-from app.comments.service import create_comment_in_db, find_comment_by_id, update_comment, delete_comment_in_db
+from app.comments.service import create_comment_in_db, find_comment_by_id, update_comment, delete_comment_in_db, \
+    get_post_match_pipeline
 from tests.conftest import COMMENT_DATA
+
+
+async def test_get_post_match_pipeline(app, post):
+    pipeline = get_post_match_pipeline(post)
+
+    assert pipeline
+    assert type(pipeline) == list
+    assert '$match' in pipeline[0]
 
 
 async def test_user_can_create_comment(app, user, post):
