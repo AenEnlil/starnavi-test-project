@@ -33,7 +33,7 @@ async def create_post(post: PostCreateInSchema, current_user: Annotated[UserRead
 async def get_list_of_posts(current_user: Annotated[UserReadSchema, Depends(get_current_user)],
                             page: int = Query(1, gt=0, lt=2147483647),
                             page_size: int = Query(1, gt=0, lt=2147483647)):
-    return paginate_collection(collection_name=POST_DOC, page=page, items_per_page=page_size)
+    return paginate_collection(collection_name=POST_DOC, pipeline=[], page=page, items_per_page=page_size)
 
 
 @router.get(path='/{post_id}', status_code=status.HTTP_200_OK, response_model=PostReadSchema)

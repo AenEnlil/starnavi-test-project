@@ -5,6 +5,12 @@ from app.database import get_comment_collection
 from app.comments.schemas import CommentCreateSchema
 
 
+def get_post_match_pipeline(post_id: PyObjectId) -> list:
+    return [
+        {"$match": {"post_id": post_id}}
+    ]
+
+
 def create_comment_in_db(post_id: PyObjectId, user_id: PyObjectId, data: dict):
     current_time = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
     data = CommentCreateSchema(**data, post_id=post_id, author_id=user_id).model_dump()

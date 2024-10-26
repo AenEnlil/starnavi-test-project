@@ -15,6 +15,12 @@ async def test_not_authenticated_user_cant_create_comment(client: AsyncClient, p
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
+async def test_not_authenticated_user_cant_get_comment_list(client: AsyncClient, post):
+    response = await client.get(url=f'api/v1/posts/{post}/comments/')
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
 async def test_not_authenticated_user_cant_update_comment(client: AsyncClient, post, comment):
     response = await client.patch(url=f'api/v1/posts/{post}/comments/{comment.id}', data=json.dumps(COMMENT_DATA.copy()))
 
@@ -138,3 +144,96 @@ async def test_user_can_delete_comment(client: AsyncClient, user, token, post, c
 
     assert response_data
     assert response_data.get('deleted')
+
+
+async def test_user_can_get_comment_list(client: AsyncClient, user, token, post, comment):
+    response = await client.get(url=f'api/v1/posts/{post}/comments/',
+                                headers={'Authorization': f'Bearer {token}'})
+
+    assert response.status_code == status.HTTP_200_OK
+
+    response_data = response.json()
+
+    assert response_data
+    assert response_data.get('total_items_count') == 1
+    assert response_data.get('page') == 1
+    assert response_data.get('page_size') == 1
+
+    items = response_data.get('items')
+    assert items
+    assert items[0].get('_id') == str(comment.id)
+
+
+async def test_user_not_get_comments_from_another_post(client: AsyncClient, user, token, post, comment,
+                                                       comment_to_another_post):
+    response = await client.get(url=f'api/v1/posts/{post}/comments/',
+                                headers={'Authorization': f'Bearer {token}'})
+
+    assert response.status_code == status.HTTP_200_OK
+
+    response_data = response.json()
+
+    assert response_data
+    assert response_data.get('total_items_count') == 1
+    assert response_data.get('page') == 1
+    assert response_data.get('page_size') == 1
+
+    items = response_data.get('items')
+    assert items
+    assert items[0].get('_id') == str(comment.id)
+    assert items[0].get('_id') != str(comment_to_another_post.id)
+    assert items[0].get('post_id') == str(post)
+    assert items[0].get('post_id') != str(comment_to_another_post.post_id)
+
+
+async def test_user_can_paginate_comment_list(client: AsyncClient, user, token, post, comment, comment2):
+    response = await client.get(url=f'api/v1/posts/{post}/comments/',
+                                headers={'Authorization': f'Bearer {token}'})
+
+    assert response.status_code == status.HTTP_200_OK
+
+    response_data = response.json()
+
+    assert response_data
+    assert response_data.get('total_items_count') == 2
+    assert response_data.get('page') == 1
+    assert response_data.get('page_size') == 1
+
+    items = response_data.get('items')
+    assert items
+    assert items[0].get('_id') == str(comment.id)
+
+    response = await client.get(url=f'api/v1/posts/{post}/comments/?page=2',
+                                headers={'Authorization': f'Bearer {token}'})
+
+    assert response.status_code == status.HTTP_200_OK
+
+    response_data = response.json()
+
+    assert response_data
+    assert response_data.get('total_items_count') == 2
+    assert response_data.get('page') == 2
+    assert response_data.get('page_size') == 1
+
+    items = response_data.get('items')
+    assert items
+    assert items[0].get('_id') == str(comment2.id)
+
+
+async def test_user_can_change_comment_list_page_size(client: AsyncClient, user, token, post, comment, comment2):
+    response = await client.get(url=f'api/v1/posts/{post}/comments/?page_size=2',
+                                headers={'Authorization': f'Bearer {token}'})
+
+    assert response.status_code == status.HTTP_200_OK
+
+    response_data = response.json()
+
+    assert response_data
+    assert response_data.get('total_items_count') == 2
+    assert response_data.get('page') == 1
+    assert response_data.get('page_size') == 2
+
+    items = response_data.get('items')
+    assert items
+    assert len(items) == 2
+

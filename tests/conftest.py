@@ -40,6 +40,14 @@ COMMENT_DATA = {
     'text': 'test comment'
 }
 
+COMMENT_DATA2 = {
+    'text': 'test comment2'
+}
+
+COMMENT_DATA3 = {
+    'text': 'comment to another post'
+}
+
 
 @pytest.fixture
 async def app() -> Generator[FastAPI, Any, None]:
@@ -93,4 +101,18 @@ async def post2(user):
 async def comment(user, post) -> CommentReadSchema:
     comment_data = COMMENT_DATA.copy()
     created_comment_id = create_comment_in_db(post, user, comment_data)
+    return CommentReadSchema(**find_comment_by_id(created_comment_id))
+
+
+@pytest.fixture
+async def comment2(user, post) -> CommentReadSchema:
+    comment_data = COMMENT_DATA2.copy()
+    created_comment_id = create_comment_in_db(post, user, comment_data)
+    return CommentReadSchema(**find_comment_by_id(created_comment_id))
+
+
+@pytest.fixture
+async def comment_to_another_post(user, post2) -> CommentReadSchema:
+    comment_data = COMMENT_DATA3.copy()
+    created_comment_id = create_comment_in_db(post2, user, comment_data)
     return CommentReadSchema(**find_comment_by_id(created_comment_id))

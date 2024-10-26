@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import BaseModel, Field
 
@@ -29,3 +29,10 @@ class CommentReadSchema(CommentBaseSchema):
     post_id: PyObjectId
     updated_at: datetime
     created_at: datetime
+
+
+class CommentReadPaginationSchema(BaseModel):
+    total_items_count: int
+    page_size: int
+    page: int
+    items: List[CommentReadSchema] = []

@@ -1,16 +1,20 @@
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Query
 from starlette import status
 from starlette.responses import JSONResponse
 
 from app.auth.dependencies import get_current_user
 from app.auth.schemas import UserReadSchema
-from app.comments.schemas import CommentCreateInSchema, CommentUpdateSchema, CommentReadSchema
+from app.comments.schemas import CommentCreateInSchema, CommentUpdateSchema, CommentReadSchema, \
+    CommentReadPaginationSchema
 from app.custom_fields import PyObjectId
 from app import messages
+from app.database import COMMENT_DOC
+from app.service import paginate_collection
 from app.post.service import find_post_by_id
-from app.comments.service import create_comment_in_db, find_comment_by_id, delete_comment_in_db, update_comment
+from app.comments.service import create_comment_in_db, find_comment_by_id, delete_comment_in_db, update_comment, \
+    get_post_match_pipeline
 
 router = APIRouter(
     prefix='/posts/{post_id}/comments',
@@ -30,10 +34,13 @@ async def create_comment(post_id: PyObjectId, comment: CommentCreateInSchema,
     return created_comment
 
 
-@router.get(path='/', status_code=status.HTTP_200_OK)
+@router.get(path='/', status_code=status.HTTP_200_OK, response_model=CommentReadPaginationSchema)
 async def get_comments(post_id: PyObjectId,
-                       current_user: Annotated[UserReadSchema, Depends(get_current_user)]):
-    pass
+                       current_user: Annotated[UserReadSchema, Depends(get_current_user)],
+                       page: int = Query(1, gt=0, lt=2147483647),
+                       page_size: int = Query(1, gt=0, lt=2147483647)):
+    return paginate_collection(collection_name=COMMENT_DOC, pipeline=get_post_match_pipeline(post_id),
+                               page=page, items_per_page=page_size)
 
 
 @router.patch(path='/{comment_id}', status_code=status.HTTP_200_OK, response_model=CommentReadSchema)
