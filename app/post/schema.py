@@ -14,8 +14,8 @@ from app.custom_fields import PyObjectId
 
 
 class PostBaseSchema(BaseModel):
-    title: str = Field(min_length=1, max_length=100)
-    text: str = Field(min_length=1, max_length=2000)
+    title: str = Field(min_length=3, max_length=100)
+    text: str = Field(min_length=3, max_length=2000)
 
 
 class PostCreateInSchema(PostBaseSchema):
@@ -42,8 +42,8 @@ class PostCreateSchema(PostBaseSchema):
 
 
 class PostUpdateSchema(PostBaseSchema):
-    title: Optional[str] = Field(default=None, example='Post', min_length=1, max_length=100)
-    text: Optional[str] = Field(default=None, example='some text', min_length=1, max_length=2000)
+    title: Optional[str] = Field(default=None, example='Post', min_length=3, max_length=100)
+    text: Optional[str] = Field(default=None, example='some text', min_length=3, max_length=2000)
 
 
 class PostReadSchema(PostBaseSchema):
