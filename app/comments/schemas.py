@@ -3,7 +3,7 @@ from typing import Optional, List
 
 from fastapi import HTTPException
 from google.api_core.exceptions import ResourceExhausted
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, model_validator, field_serializer
 from starlette import status
 
 from app.config import get_settings
@@ -25,6 +25,10 @@ class CommentCreateInSchema(CommentBaseSchema):
                 validation_result = get_result_of_ai_validation({"text": self.text})
                 if not validation_result.get('result'):
                     failed_fields = validation_result.get('failed_fields')
+
+                    from app.comments.service import update_comments_statistics
+                    update_comments_statistics(increase_blocked_comments=True)
+
                     raise ValueError(f'following fields contains offensive language: {failed_fields}')
             except ValueError as _e:
                 raise ValueError(_e.args[0])
@@ -57,3 +61,13 @@ class CommentReadPaginationSchema(BaseModel):
     page_size: int
     page: int
     items: List[CommentReadSchema] = []
+
+
+class CommentStatisticSchema(BaseModel):
+    blocked_comments: int = 0
+    created_comments: int = 0
+    date: datetime
+
+    @field_serializer('date')
+    def serialize_datetime(self, dt: datetime, _info):
+        return dt.strftime("%Y-%m-%d")

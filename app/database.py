@@ -12,6 +12,7 @@ db = mongo_client[settings.DATABASE_NAME]
 USER_DOC = 'users'
 POST_DOC = 'posts'
 COMMENT_DOC = 'comments'
+STATISTICS_DOC = 'statistics'
 
 db.users.create_index(['email'], unique=True)
 
@@ -48,3 +49,10 @@ def get_collection_by_name(name: str) -> Collection:
     """
     return db.get_collection(name)
 
+
+def get_statistic_collection() -> Collection:
+    """
+    returns statistics collection
+    :return: statistics collection
+    """
+    return db.get_collection(STATISTICS_DOC)

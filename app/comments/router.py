@@ -14,11 +14,16 @@ from app.database import COMMENT_DOC
 from app.service import paginate_collection
 from app.post.service import find_post_by_id
 from app.comments.service import create_comment_in_db, find_comment_by_id, delete_comment_in_db, update_comment, \
-    get_post_match_pipeline
+    get_post_match_pipeline, update_comments_statistics
 
 router = APIRouter(
     prefix='/posts/{post_id}/comments',
     tags=['comments']
+)
+
+statistics_router = APIRouter(
+    prefix='/statistics',
+    tags=['statistics']
 )
 
 
@@ -30,6 +35,7 @@ async def create_comment(post_id: PyObjectId, comment: CommentCreateInSchema,
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=messages.POST_NOT_FOUND)
 
     created_comment_id = create_comment_in_db(post_id, current_user.id, comment.model_dump())
+    update_comments_statistics(increase_created_comments=True)
     created_comment = find_comment_by_id(created_comment_id)
     return created_comment
 
@@ -69,3 +75,7 @@ async def delete_comment(post_id: PyObjectId, comment_id: PyObjectId,
     result = delete_comment_in_db(comment_id)
     return JSONResponse(status_code=status.HTTP_200_OK, content={'deleted': result})
 
+
+@statistics_router.get(path='/comments-daily-breakdown', status_code=status.HTTP_200_OK)
+async def read_comments_daily_breakdown(current_user: Annotated[UserReadSchema, Depends(get_current_user)]):
+    pass
