@@ -33,7 +33,7 @@ class UserResponseSchema(UserBaseSchema):
 
 class UserSettingsUpdateSchema(BaseModel):
     automatic_response_enabled: Optional[bool] = Field(default=None)
-    automatic_response_delay_in_minutes: Optional[int] = Field(default=None)
+    automatic_response_delay_in_minutes: Optional[int] = Field(default=None, gt=0, le=600)
 
 
 class UserSettingReadSchema(BaseModel):
