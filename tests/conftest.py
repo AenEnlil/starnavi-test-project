@@ -48,6 +48,11 @@ COMMENT_DATA3 = {
     'text': 'comment to another post'
 }
 
+USER_SETTINGS = {
+    'automatic_response_enabled': True,
+    'automatic_response_delay_in_minutes': 20
+}
+
 
 @pytest.fixture
 async def app() -> Generator[FastAPI, Any, None]:

@@ -10,6 +10,9 @@ POST_EDIT_NOT_ALLOWED = "You can't edit someone else`s post"
 POST_DELETE_NOT_ALLOWED = "You can't delete someone else`s post"
 
 USER_ALREADY_EXISTS = 'User with this email already exists'
+USER_SETTINGS_UPDATE_NOT_ALLOWED = "You can't update someone else`s settings"
+USER_SETTINGS_READ_NOT_ALLOWED = "You can't read someone else`s settings"
+
 
 COMMENT_NOT_FOUND = 'Comment not found'
 COMMENT_UPDATE_NOT_ALLOWED = "You can't update someone else`s comment"
