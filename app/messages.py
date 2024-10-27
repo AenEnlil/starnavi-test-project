@@ -15,3 +15,6 @@ COMMENT_NOT_FOUND = 'Comment not found'
 COMMENT_UPDATE_NOT_ALLOWED = "You can't update someone else`s comment"
 COMMENT_DELETE_NOT_ALLOWED = "You can't delete someone else`s comment"
 
+
+AI_REQUEST_QUOTA_EXCEEDED = 'AI Request quota exceeded. Please try again later'
+AI_VALIDATION_ERROR = 'AI validation currently unavailable. Please try again later'
