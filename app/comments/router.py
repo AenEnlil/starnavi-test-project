@@ -1,5 +1,6 @@
 from typing import Annotated
 
+from datetime import datetime
 from fastapi import APIRouter, HTTPException, Depends, Query
 from starlette import status
 from starlette.responses import JSONResponse
@@ -7,14 +8,14 @@ from starlette.responses import JSONResponse
 from app.auth.dependencies import get_current_user
 from app.auth.schemas import UserReadSchema
 from app.comments.schemas import CommentCreateInSchema, CommentUpdateSchema, CommentReadSchema, \
-    CommentReadPaginationSchema
+    CommentReadPaginationSchema, CommentStatisticsResponseSchema
 from app.custom_fields import PyObjectId
 from app import messages
 from app.database import COMMENT_DOC
 from app.service import paginate_collection
 from app.post.service import find_post_by_id
 from app.comments.service import create_comment_in_db, find_comment_by_id, delete_comment_in_db, update_comment, \
-    get_post_match_pipeline, update_comments_statistics
+    get_post_match_pipeline, update_comments_statistics, get_comment_statistics_for_certain_period
 
 router = APIRouter(
     prefix='/posts/{post_id}/comments',
@@ -76,6 +77,15 @@ async def delete_comment(post_id: PyObjectId, comment_id: PyObjectId,
     return JSONResponse(status_code=status.HTTP_200_OK, content={'deleted': result})
 
 
-@statistics_router.get(path='/comments-daily-breakdown', status_code=status.HTTP_200_OK)
-async def read_comments_daily_breakdown(current_user: Annotated[UserReadSchema, Depends(get_current_user)]):
-    pass
+@statistics_router.get(path='/comments-daily-breakdown', status_code=status.HTTP_200_OK,
+                       response_model=CommentStatisticsResponseSchema)
+async def read_comments_daily_breakdown(current_user: Annotated[UserReadSchema, Depends(get_current_user)],
+                                        date_from: datetime = Query(description='The date from which the search for '
+                                                                                'comment statistics will be performed',
+                                                                    example='2024-12-23'),
+                                        date_to: datetime = Query(description='The date until which the search for '
+                                                                              'comment statistics will be performed',
+                                                                  example='2024-12-23')):
+    comments_statistics = get_comment_statistics_for_certain_period(date_from=date_from.date().strftime("%Y-%m-%d"),
+                                                                    date_to=date_to.date().strftime("%Y-%m-%d"))
+    return comments_statistics

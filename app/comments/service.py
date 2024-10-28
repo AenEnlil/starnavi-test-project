@@ -1,8 +1,10 @@
+import pymongo
+
 from datetime import datetime
 
 from app.custom_fields import PyObjectId
 from app.database import get_comment_collection, get_statistic_collection
-from app.comments.schemas import CommentCreateSchema, CommentStatisticSchema
+from app.comments.schemas import CommentCreateSchema, CommentStatisticsSchema
 
 
 def get_post_match_pipeline(post_id: PyObjectId) -> list:
@@ -34,13 +36,26 @@ def delete_comment_in_db(comment_id: PyObjectId):
     return bool(result.deleted_count)
 
 
+def get_comment_statistics_for_certain_period(date_from: str, date_to: str) -> dict:
+    """
+    Finds comment statistics in database within given date range. Aggregates found statistics by day
+    :param date_from: Start date for search
+    :param date_to: End date for search
+    :return: Found statistics
+    """
+    query = {'date': {'$gte': date_from, '$lte': date_to}}
+    comment_statistics = list(get_statistic_collection().find(query, {'_id': 0}).sort('date', pymongo.ASCENDING))
+    formatted_statistics = [{item.pop('date'): item} for item in comment_statistics]
+    return {'items': formatted_statistics}
+
+
 def update_comments_statistics(increase_blocked_comments: bool = False,
                                increase_created_comments: bool = False) -> None:
     current_date = datetime.utcnow().date().strftime("%Y-%m-%d")
     existing_statistics = get_statistic_collection().find_one({'date': current_date})
 
     data = existing_statistics if existing_statistics else {'date': current_date}
-    data = CommentStatisticSchema(**data).model_dump()
+    data = CommentStatisticsSchema(**data).model_dump()
 
     if increase_blocked_comments:
         data['blocked_comments'] += 1

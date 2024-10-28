@@ -63,7 +63,7 @@ class CommentReadPaginationSchema(BaseModel):
     items: List[CommentReadSchema] = []
 
 
-class CommentStatisticSchema(BaseModel):
+class CommentStatisticsSchema(BaseModel):
     blocked_comments: int = 0
     created_comments: int = 0
     date: datetime
@@ -71,3 +71,7 @@ class CommentStatisticSchema(BaseModel):
     @field_serializer('date')
     def serialize_datetime(self, dt: datetime, _info):
         return dt.strftime("%Y-%m-%d")
+
+
+class CommentStatisticsResponseSchema(BaseModel):
+    items: List
