@@ -1,10 +1,12 @@
 import pytest
 import json
 
+from datetime import datetime
 from httpx import AsyncClient
 from starlette import status
 
 from app import messages
+from app.database import get_statistic_collection
 from app.custom_fields import PyObjectId
 from tests.conftest import COMMENT_DATA
 
@@ -101,6 +103,10 @@ async def test_user_cant_delete_someone_else_comment(client: AsyncClient, user, 
 
 
 async def test_user_can_create_comment(client: AsyncClient, user, token, post):
+    current_date = datetime.utcnow().date().strftime("%Y-%m-%d")
+    existing_statistics = get_statistic_collection().find_one({'date': current_date})
+    assert not existing_statistics
+
     response = await client.post(url=f'api/v1/posts/{post}/comments/',
                                  data=json.dumps(COMMENT_DATA.copy()),
                                  headers={'Authorization': f'Bearer {token}'})
@@ -113,6 +119,11 @@ async def test_user_can_create_comment(client: AsyncClient, user, token, post):
     assert response_data.get('text') == COMMENT_DATA.get('text')
     assert response_data.get('author_id') == str(user)
     assert response_data.get('post_id') == str(post)
+
+    existing_statistics = get_statistic_collection().find_one({'date': current_date})
+    assert existing_statistics
+    assert existing_statistics.get('created_comments') == 1
+    assert existing_statistics.get('blocked_comments') == 0
 
 
 async def test_user_can_edit_comment(client: AsyncClient, user, token, post, comment):

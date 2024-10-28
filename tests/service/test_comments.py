@@ -1,8 +1,10 @@
 import pytest
 
-from app.database import get_comment_collection
+from datetime import datetime
+
+from app.database import get_comment_collection, get_statistic_collection
 from app.comments.service import create_comment_in_db, find_comment_by_id, update_comment, delete_comment_in_db, \
-    get_post_match_pipeline
+    get_post_match_pipeline, update_comments_statistics
 from tests.conftest import COMMENT_DATA
 
 
@@ -58,3 +60,37 @@ async def test_delete_comment(app, comment):
     existing_comments_count = get_comment_collection().count_documents({})
     assert not existing_comments_count
 
+
+async def test_update_statistics_create_statistics_if_not_exists(app):
+    current_date = datetime.utcnow().date().strftime("%Y-%m-%d")
+
+    existing_statistics = get_statistic_collection().find_one({'date': current_date})
+    assert not existing_statistics
+
+    update_comments_statistics(increase_blocked_comments=True)
+
+    existing_statistics = get_statistic_collection().find_one({'date': current_date})
+    assert existing_statistics
+    assert existing_statistics.get('date') == current_date
+
+
+async def test_update_statistics_increase_created_comments_count(app):
+    current_date = datetime.utcnow().date().strftime("%Y-%m-%d")
+    update_comments_statistics(increase_created_comments=True)
+
+    existing_statistics = get_statistic_collection().find_one({'date': current_date})
+    assert existing_statistics
+    assert existing_statistics.get('blocked_comments') == 0
+    assert existing_statistics.get('created_comments') == 1
+    assert existing_statistics.get('date') == current_date
+
+
+async def test_update_statistics_increase_blocked_comments_count(app):
+    current_date = datetime.utcnow().date().strftime("%Y-%m-%d")
+    update_comments_statistics(increase_blocked_comments=True)
+
+    existing_statistics = get_statistic_collection().find_one({'date': current_date})
+    assert existing_statistics
+    assert existing_statistics.get('blocked_comments') == 1
+    assert existing_statistics.get('created_comments') == 0
+    assert existing_statistics.get('date') == current_date
