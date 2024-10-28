@@ -35,6 +35,12 @@ async def test_not_authenticated_user_cant_delete_comment(client: AsyncClient, p
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
+async def test_not_authenticated_user_cant_get_comment_statistics(client: AsyncClient):
+    response = await client.get(url=f'api/v1/statistics/comments-daily-breakdown')
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
 async def test_user_cant_create_comment_for_non_existing_post(client: AsyncClient, user, token):
     post_id = PyObjectId()
 
@@ -248,3 +254,26 @@ async def test_user_can_change_comment_list_page_size(client: AsyncClient, user,
     assert items
     assert len(items) == 2
 
+
+async def test_user_can_get_comment_statistics(client: AsyncClient, user, token, comments_statistics):
+    existing_statistics = get_statistic_collection().find_one({'_id': comments_statistics})
+    assert existing_statistics
+    stat_date = existing_statistics.get('date')
+
+    response = await client.get(url=f"api/v1/statistics/comments-daily-breakdown?date_from=2024-04-12&date_to={stat_date}",
+                                headers={'Authorization': f'Bearer {token}'})
+
+    assert response.status_code == status.HTTP_200_OK
+
+    response_data = response.json()
+
+    assert response_data
+
+    items = response_data.get('items')
+    assert items
+    assert stat_date in items[0]
+
+    daily_statistics = items[0].get(stat_date)
+    assert daily_statistics
+    assert daily_statistics.get('created_comments') == existing_statistics.get('created_comments')
+    assert daily_statistics.get('blocked_comments') == existing_statistics.get('blocked_comments')

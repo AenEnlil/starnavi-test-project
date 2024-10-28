@@ -8,7 +8,7 @@ from httpx import AsyncClient, ASGITransport
 from app.auth.jwt import AccessToken
 from app.main import get_application
 from app.config import get_settings
-from app.database import mongo_client
+from app.database import mongo_client, get_statistic_collection
 from app.comments.schemas import CommentReadSchema
 from app.comments.service import create_comment_in_db, find_comment_by_id
 from app.post.service import create_post_in_db
@@ -51,6 +51,12 @@ COMMENT_DATA3 = {
 USER_SETTINGS = {
     'automatic_response_enabled': True,
     'automatic_response_delay_in_minutes': 20
+}
+
+COMMENT_STATISTICS = {
+    'created_comments': 12,
+    'blocked_comments': 8,
+    'date': '2024-08-16'
 }
 
 
@@ -121,3 +127,9 @@ async def comment_to_another_post(user, post2) -> CommentReadSchema:
     comment_data = COMMENT_DATA3.copy()
     created_comment_id = create_comment_in_db(post2, user, comment_data)
     return CommentReadSchema(**find_comment_by_id(created_comment_id))
+
+
+@pytest.fixture
+async def comments_statistics():
+    created_statistics_id = get_statistic_collection().insert_one(COMMENT_STATISTICS.copy())
+    return created_statistics_id.inserted_id

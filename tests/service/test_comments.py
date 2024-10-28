@@ -4,7 +4,7 @@ from datetime import datetime
 
 from app.database import get_comment_collection, get_statistic_collection
 from app.comments.service import create_comment_in_db, find_comment_by_id, update_comment, delete_comment_in_db, \
-    get_post_match_pipeline, update_comments_statistics
+    get_post_match_pipeline, update_comments_statistics, get_comment_statistics_for_certain_period
 from tests.conftest import COMMENT_DATA
 
 
@@ -94,3 +94,21 @@ async def test_update_statistics_increase_blocked_comments_count(app):
     assert existing_statistics.get('blocked_comments') == 1
     assert existing_statistics.get('created_comments') == 0
     assert existing_statistics.get('date') == current_date
+
+
+async def test_get_comment_statistics_for_certain_period(comments_statistics):
+    existing_statistics = get_statistic_collection().find_one({'_id': comments_statistics})
+    assert existing_statistics
+
+    filtered_statistics = get_comment_statistics_for_certain_period('2024-05-12', existing_statistics.get('date'))
+    assert filtered_statistics
+
+    items = filtered_statistics.get('items')
+    existing_statistics_date = existing_statistics.get('date')
+    assert items
+    assert existing_statistics_date in items[0]
+
+    statistics_by_day = items[0].get(existing_statistics_date)
+    assert statistics_by_day
+    assert statistics_by_day.get('created_comments') == existing_statistics.get('created_comments')
+    assert statistics_by_day.get('blocked_comments') == existing_statistics.get('blocked_comments')
