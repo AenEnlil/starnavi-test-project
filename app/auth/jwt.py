@@ -17,12 +17,22 @@ class AccessToken:
         self._settings = get_settings()
 
     def create_access_token(self, email: str) -> str:
+        """
+        creates jwt token
+        :param email: user email, that will be encoded in token
+        :return: jwt token
+        """
         expire = self._current_time + timedelta(minutes=self._settings.ACCESS_TOKEN_LIFETIME_MINUTES)
         payload = {'exp': expire, 'sub': email}
         encoded_jwt = jwt.encode(payload, self._settings.SECRET_KEY, algorithm=self._settings.ALGORITHM)
         return encoded_jwt
 
     def decode_token(self, token: str) -> dict:
+        """
+        decodes jwt token
+        :param token: token that will be decoded
+        :return: decoded token data
+        """
         try:
             return jwt.decode(token, self._settings.SECRET_KEY, algorithms=[self._settings.ALGORITHM])
         except jwt.exceptions.DecodeError:

@@ -48,7 +48,12 @@ class JWTBearer(HTTPBearer):
         return is_token_valid
 
 
-async def get_current_user(token: str = Depends(JWTBearer())):
+async def get_current_user(token: str = Depends(JWTBearer())) -> UserReadSchema:
+    """
+    Returns data of current user, that found using data from token
+    :param token: JWT token
+    :return: user data
+    """
     try:
         payload = AccessToken().decode_token(token)
         token_data = TokenData(email=payload.get('sub'))
