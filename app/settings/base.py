@@ -19,6 +19,6 @@ class BaseAppSettings(BaseSettings):
 
     SECRET_KEY: str
     ACCESS_TOKEN_LIFETIME_MINUTES: int = 15
-    ALGORITHM: str
+    ALGORITHM: str = 'HS256'
 
     model_config = SettingsConfigDict(env_file='.env', extra='ignore')
