@@ -14,7 +14,7 @@ class BaseAppSettings(BaseSettings):
 
     AI_MODEL_NAME: str = "gemini-1.5-flash-002"
     GOOGLE_CLOUD_PROJECT_LOCATION: str = "us-central1"
-    GOOGLE_CLOUD_PROJECT_ID: str
+    GOOGLE_CLOUD_PROJECT_ID: str = 'clean-heading-439815-v5'
     GOOGLE_CLOUD_PROJECT_CREDENTIALS_PATH: str = '/app/vertex_ai_core/service_account_credentials.json'
 
     SECRET_KEY: str
