@@ -1,11 +1,13 @@
 # test project
 
-Using this API you can manage Post and Comments. When creating post or comment
-its text checked by AI on containing offensive language. User can enable automatic response
-feature for his post and set delay for that answer. There is everyday statistics on created/blocked comments
+Using this API you can manage Post and Comments. When user creates post or comment the text is checked by AI if there is any offensive language. 
+User can enable automatic response feature for his posts and set the time after which response will be generated.
 
-Vertex AI used for AI generation and validation. It hosted on separate google cloud project
+Vertex AI is used for automatic response generation and offensive language validation. It is hosted on separate google cloud project
 and accessed through service account, that have rights only to interact with AI.
+
+There is also everyday statistics on created/blocked comments
+
 
 #### Technologies:
 - Python == 3.10
