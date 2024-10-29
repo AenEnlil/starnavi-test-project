@@ -1,12 +1,15 @@
 from typing import Annotated
 
-from datetime import datetime
+from datetime import datetime, timedelta
+
+from apscheduler.triggers.date import DateTrigger
 from fastapi import APIRouter, HTTPException, Depends, Query
 from starlette import status
 from starlette.responses import JSONResponse
 
 from app.auth.dependencies import get_current_user
 from app.auth.schemas import UserReadSchema
+from app.background_tasks import answer_to_comment
 from app.comments.schemas import CommentCreateInSchema, CommentUpdateSchema, CommentReadSchema, \
     CommentReadPaginationSchema, CommentStatisticsResponseSchema
 from app.custom_fields import PyObjectId
@@ -16,6 +19,7 @@ from app.service import paginate_collection
 from app.post.service import find_post_by_id
 from app.comments.service import create_comment_in_db, find_comment_by_id, delete_comment_in_db, update_comment, \
     get_post_match_pipeline, update_comments_statistics, get_comment_statistics_for_certain_period
+from app.user.service import find_user_by_id
 
 router = APIRouter(
     prefix='/posts/{post_id}/comments',
@@ -38,6 +42,13 @@ async def create_comment(post_id: PyObjectId, comment: CommentCreateInSchema,
     created_comment_id = create_comment_in_db(post_id, current_user.id, comment.model_dump())
     update_comments_statistics(increase_created_comments=True)
     created_comment = find_comment_by_id(created_comment_id)
+
+    post_author_data = find_user_by_id(post.get('user_id'))
+    if post_author_data.get('automatic_response_enabled') and post_author_data.get('_id') != current_user.id:
+        from app.main import scheduler
+        executing_date = datetime.now() + timedelta(minutes=post_author_data.get('automatic_response_delay_in_minutes'))
+        scheduler.add_job(answer_to_comment, DateTrigger(run_date=executing_date), [post, created_comment],
+                          misfire_grace_time=3600)
     return created_comment
 
 

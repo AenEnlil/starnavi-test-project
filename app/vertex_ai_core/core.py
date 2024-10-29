@@ -34,6 +34,13 @@ def get_validation_prompt(data: dict):
     return validation_prompt
 
 
+def get_generation_prompt(post: str, comment: str):
+    generation_prompt = f'You an author of this post: {post}. Generate answer to following user comment: {comment}.' \
+                        f'Your response should be related to this comment and your post. Response should be ' \
+                        f'less than 1000 characters'
+    return generation_prompt
+
+
 def clear_response(response: str) -> str:
     opening_bracket = response.find('{')
     closing_bracket = response.find('}')
@@ -46,3 +53,9 @@ def get_result_of_ai_validation(data: dict) -> dict:
     cleared_response = clear_response(response.text)
     validation_result = json.loads(cleared_response)
     return validation_result
+
+
+def generate_answer_to_user_comment_as_author_of_post(post: str, comment: str) -> str:
+    prompt = get_generation_prompt(post, comment)
+    response = model.generate_content(prompt)
+    return response.text

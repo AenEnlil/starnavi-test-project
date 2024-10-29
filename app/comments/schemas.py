@@ -46,12 +46,16 @@ class CommentUpdateSchema(CommentBaseSchema):
 class CommentCreateSchema(CommentBaseSchema):
     post_id: PyObjectId
     author_id: PyObjectId
+    post_author_answer: bool = False
+    answered_comment_id: Optional[PyObjectId] = Field(default=None)
 
 
 class CommentReadSchema(CommentBaseSchema):
     id: PyObjectId = Field(default_factory=PyObjectId, alias='_id')
     author_id: PyObjectId
     post_id: PyObjectId
+    post_author_answer: bool = False
+    answered_comment_id: Optional[PyObjectId] = Field(default=None)
     updated_at: datetime
     created_at: datetime
 
