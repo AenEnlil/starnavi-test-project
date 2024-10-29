@@ -8,6 +8,7 @@ from starlette import status
 
 from app.config import get_settings
 from app.custom_fields import PyObjectId
+from app.logger import get_logger
 from app.vertex_ai_core.core import get_result_of_ai_validation
 from app.messages import AI_VALIDATION_ERROR, AI_REQUEST_QUOTA_EXCEEDED
 
@@ -35,6 +36,8 @@ class CommentCreateInSchema(CommentBaseSchema):
             except ResourceExhausted:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=AI_REQUEST_QUOTA_EXCEEDED)
             except Exception as _e:
+                logger = get_logger()
+                logger.error(_e, exc_info=True)
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=AI_VALIDATION_ERROR)
         return self
 

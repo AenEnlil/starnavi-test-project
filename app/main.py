@@ -5,11 +5,15 @@ from fastapi import FastAPI
 from pytz import utc
 
 from app.api import api_router
+from app.logger import get_logger
 from app.config import get_settings
 
 
 def get_application() -> FastAPI:
     settings = get_settings()
+
+    if settings.LOGS_ENABLED:
+        logger = get_logger()
 
     application = FastAPI()
 

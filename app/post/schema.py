@@ -8,6 +8,7 @@ from google.api_core.exceptions import ResourceExhausted
 from pydantic import BaseModel, Field, model_validator
 
 from app.config import get_settings
+from app.logger import get_logger
 from app.messages import AI_REQUEST_QUOTA_EXCEEDED, AI_VALIDATION_ERROR
 from app.vertex_ai_core.core import get_result_of_ai_validation
 from app.custom_fields import PyObjectId
@@ -33,6 +34,8 @@ class PostCreateInSchema(PostBaseSchema):
             except ResourceExhausted:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=AI_REQUEST_QUOTA_EXCEEDED)
             except Exception as _e:
+                logger = get_logger()
+                logger.error(_e, exc_info=True)
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=AI_VALIDATION_ERROR)
         return self
 

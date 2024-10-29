@@ -8,6 +8,7 @@ from app.auth.jwt import AccessToken
 from app.auth.service import find_user_by_email
 from app.auth.schemas import UserReadSchema, TokenData
 from app import messages
+from app.logger import get_logger
 
 
 class JWTBearer(HTTPBearer):
@@ -66,4 +67,6 @@ async def get_current_user(token: str = Depends(JWTBearer())) -> UserReadSchema:
         raise HTTPException(status_code=403, detail=messages.EMAIL_VALIDATION_ERROR)
 
     except Exception as e:
+        logger = get_logger()
+        logger.error(e, exc_info=True)
         raise HTTPException(status_code=403, detail=messages.CREDENTIALS_INCORRECT)
