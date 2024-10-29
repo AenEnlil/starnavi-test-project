@@ -5,6 +5,7 @@ from httpx import AsyncClient
 from starlette import status
 
 from app.custom_fields import PyObjectId
+from app.database import get_comment_collection
 from app.messages import POST_NOT_FOUND, POST_EDIT_NOT_ALLOWED, POST_DELETE_NOT_ALLOWED, POST_ALREADY_EXISTS
 from tests.conftest import POST_DATA
 
@@ -261,6 +262,25 @@ async def test_user_can_delete_post(client: AsyncClient, user, token):
 
     assert response
     assert response.get('deleted')
+
+
+async def test_when_user_delete_post_all_related_comment_deleted(client: AsyncClient, user, token, post, comment,
+                                                                 comment2):
+    comments_count = get_comment_collection().count_documents({'post_id': post})
+    assert comments_count == 2
+
+    response = await client.delete(url=f'api/v1/posts/{post}',
+                                   headers={'Authorization': f'Bearer {token}'})
+
+    assert response.status_code == status.HTTP_200_OK
+
+    response = response.json()
+
+    assert response
+    assert response.get('deleted')
+
+    comments_count = get_comment_collection().count_documents({'post_id': post})
+    assert comments_count == 0
 
 
 async def test_user_can_get_post_list(client: AsyncClient, user, token, post):

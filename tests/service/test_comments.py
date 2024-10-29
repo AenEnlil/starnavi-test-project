@@ -4,7 +4,8 @@ from datetime import datetime
 
 from app.database import get_comment_collection, get_statistic_collection
 from app.comments.service import create_comment_in_db, find_comment_by_id, update_comment, delete_comment_in_db, \
-    get_post_match_pipeline, update_comments_statistics, get_comment_statistics_for_certain_period
+    get_post_match_pipeline, update_comments_statistics, get_comment_statistics_for_certain_period, \
+    delete_all_comments_related_to_post
 from tests.conftest import COMMENT_DATA
 
 
@@ -112,3 +113,16 @@ async def test_get_comment_statistics_for_certain_period(comments_statistics):
     assert statistics_by_day
     assert statistics_by_day.get('created_comments') == existing_statistics.get('created_comments')
     assert statistics_by_day.get('blocked_comments') == existing_statistics.get('blocked_comments')
+
+
+async def test_delete_all_comments_related_to_post(app, post, post2, comment, comment2, comment_to_another_post):
+    document_count = get_comment_collection().count_documents({})
+    assert document_count == 3
+
+    delete_all_comments_related_to_post(post)
+
+    document_count = get_comment_collection().count_documents({})
+    assert document_count == 1
+
+    assert get_comment_collection().find_one({'_id': comment_to_another_post.id})
+

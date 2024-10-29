@@ -3,6 +3,7 @@ from datetime import datetime
 from app.database import get_post_collection
 from app.custom_fields import PyObjectId
 from app.post.schema import PostCreateSchema
+from app.comments.service import delete_all_comments_related_to_post
 
 
 def create_post_in_db(post_data: dict, user_id: PyObjectId) -> PyObjectId:
@@ -59,4 +60,5 @@ def delete_post_in_db(post_id: PyObjectId) -> bool:
     :return: deletion result
     """
     result = get_post_collection().delete_one({'_id': post_id})
+    delete_all_comments_related_to_post(post_id)
     return bool(result.deleted_count)

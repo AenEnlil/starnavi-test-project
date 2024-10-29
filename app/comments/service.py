@@ -96,3 +96,12 @@ def update_comments_statistics(increase_blocked_comments: bool = False,
     elif increase_created_comments:
         data['created_comments'] += 1
     get_statistic_collection().update_one({'date': current_date}, {'$set': data}, upsert=True)
+
+
+def delete_all_comments_related_to_post(post_id: PyObjectId) -> None:
+    """
+    Removes all comments that are related to post
+    :param post_id: id of post
+    :return: None
+    """
+    get_comment_collection().delete_many({'post_id': post_id})
