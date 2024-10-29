@@ -2,7 +2,13 @@ from app.comments.service import create_comment_in_db
 from app.vertex_ai_core.core import generate_answer_to_user_comment_as_author_of_post
 
 
-def answer_to_comment(post_data, comment_data):
+def answer_to_comment(post_data, comment_data) -> None:
+    """
+    Automatic answer to user comment
+    :param post_data: post data
+    :param comment_data: user comment
+    :return: None
+    """
     try:
         text = generate_answer_to_user_comment_as_author_of_post(post=post_data.get('text'),
                                                                  comment=comment_data.get('text'))
