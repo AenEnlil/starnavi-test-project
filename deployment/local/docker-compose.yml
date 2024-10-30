@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+
+  database:
+    image: 'mongo:7.0.14'
+    container_name: mongo_db
+    restart: always
+    ports:
+      - '27018:27017'
+
+  application:
+    container_name: application
+    env_file: ./.env
+    environment:
+      - MONGO_URL=mongodb://database:27017
+      - SECRET_KEY=${SECRET_KEY}
+    ports:
+      - '8000:8000'
+    build:
+      context: ../..
+      dockerfile: 'deployment/local/Dockerfile'
+    depends_on:
+      - database
+
+
